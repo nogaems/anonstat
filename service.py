@@ -4,11 +4,13 @@
 import tornado.ioloop
 import tornado.web
 from tornado.gen import coroutine
-import config as cfg
+import maxminddb
+
 import sqlite3
 import os
 import time
-import maxminddb
+
+import config as cfg
 
 
 class Index(tornado.web.RequestHandler):
