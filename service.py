@@ -9,8 +9,14 @@ import maxminddb
 import sqlite3
 import os
 import time
+import random
+import hashlib
 
 import config as cfg
+
+random = random.SystemRandom()
+random.seed()
+cookie_secret = hashlib.sha256(str(random.random()).encode('utf8')).hexdigest()
 
 
 class Index(tornado.web.RequestHandler):
@@ -20,42 +26,63 @@ class Index(tornado.web.RequestHandler):
 
 
 class Service(tornado.web.RequestHandler):
-    ip = {}
+    access = {}
+    grants = {}
+    sids = [None]
     reader = maxminddb.open_database(cfg.geodb)
     db = sqlite3.connect(cfg.db)
 
     @coroutine
     def post(self):
-        if self.request.remote_ip in self.ip.keys() and \
-                time.time() - self.ip[self.request.remote_ip] <= cfg.timeout:
-            self.set_status(403, reason='Timeout')
-        elif not self.get_cookie('SID'):
-            self.set_status(403, reason='The lack of cookie')
-        else:
-            self.ip[self.request.remote_ip] = time.time()
+        if not self.request.remote_ip in self.access.keys():
             if not self.request.host_name in cfg.domains:
                 self.set_status(403, 'Unaccepted domain')
-            else:
-                self.dump(self.request)
-                self.set_status(200)
+                return
+            sid = self.grant_sid()
+        else:
+            if time.time() - self.access[self.request.remote_ip] <= cfg.access_timeout:
+                self.set_status(403, reason='Access timeout')
+                return
+            sid = self.get_secure_cookie('SID')
+            sid = sid.decode('utf-8') if sid else None
+            if not sid in self.sids:
+                self.set_status(403, reason='Invalid cookie')
+                return
+            if not sid:
+                if time.time() - self.grants[self.request.remote_ip] <= cfg.cookie_timeout:
+                    self.set_status(403, reason='Cookie granting timeout')
+                    return
+                sid = grant_sid()
+        self.access[self.request.remote_ip] = time.time()
+        self.set_status(200)
+        self.dump(self.request.body,
+                  self.request._start_time,
+                  sid,
+                  self.get_country(self.request.remote_ip)
+                  )
 
-    def dump(self, request):
-        data = (request.body,
-                request._start_time,
-                request.cookies.get("SID").value,
-                self.get_country(request.remote_ip),
-                )
-        print(data)
+    def dump(self, *args):
+        print(*args)
         cur = self.db.cursor()
         cur.execute('''
         INSERT INTO stats VALUES(?,?,?,?);
-        ''', data)
+        ''', args)
         cur.execute("PRAGMA wal_checkpoint(PASSIVE)")
         self.db.commit()
 
     def get_country(self, ip):
         result = self.reader.get(ip)
         return result['country']['names']['en'] if result else 'Undefined'
+
+    def get_random_bytes(self, length=16):
+        return ''.join([hex(random.randint(0, 15))[2:] for _ in range(length)])
+
+    def grant_sid(self):
+        sid = self.get_random_bytes()
+        self.sids.append(sid)
+        self.grants[self.request.remote_ip] = time.time()
+        self.set_secure_cookie('SID', sid, expires_days=365)
+        return sid
 
 
 class Script(tornado.web.RequestHandler):
@@ -73,22 +100,6 @@ class Widget(tornado.web.RequestHandler):
     def get(self):
         pass
 
-# TODO: replace to manage.py
-
-
-def create_db(connection):
-    c = connection.cursor()
-    c.execute(
-        '''
-    CREATE TABLE IF NOT EXISTS stats
-        (url TEXT, time REAL, id TEXT, country TEXT);
-    '''
-    )
-    c.execute("PRAGMA wal_checkpoint(PASSIVE)")
-    c.close()
-
-db = sqlite3.connect('db/base.db')
-create_db(db)
 
 if __name__ == "__main__":
     app = tornado.web.Application(
@@ -98,7 +109,8 @@ if __name__ == "__main__":
             (r'/anonstat.js', Script),
             (r'/gidget', Widget)
         ],
-        template_path=os.path.join(os.path.dirname(__file__), "templates")
+        template_path=os.path.join(os.path.dirname(__file__), "templates"),
+        cookie_secret=cookie_secret
 
     )
     app.listen(cfg.port)

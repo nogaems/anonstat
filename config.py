@@ -7,8 +7,11 @@ port = '8888'
 domains = ['localhost']
 # Timeout between two hits from the same IP (in seconds), more often
 # attempts to get a page will not affect the statistics
-timeout = 10
+access_timeout = 10
+# Timeout of granting a cookie for the same IP
+cookie_timeout = 600
 # Path to the databases
 db = 'db/base.db'
 geodb = 'db/GeoLite2-Country.mmdb'
+# Enable https
 ssl = False

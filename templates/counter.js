@@ -27,17 +27,17 @@ function setCookie(name, value) {
     port = "{{port}}";
     path = "bump";
 
-    if(!(sid = getCookie("SID"))){
-        sid = getRandom(16);
-        setCookie("SID", sid);
-    }        
-    
+    // if(!(sid = getCookie("SID"))){
+    //     sid = getRandom(16);
+    //     setCookie("SID", sid);
+    // }
+
+
     var xhr = new XMLHttpRequest();
     url = "http{{ssl}}://" + host + ":" + port + "/" + path;
     xhr.open("POST", url, true);
     xhr.onreadystatechange = function () {
-        console.log(xhr.status);
+        // console.log(xhr.status);
     }
     xhr.send(document.location);
-    console.log(sid);
 })();
