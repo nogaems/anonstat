@@ -16,6 +16,7 @@ import imp
 
 import config as cfg
 from widget import Template
+
 random = random.SystemRandom()
 random.seed()
 cookie_secret = hashlib.sha256(str(random.random()).encode('utf8')).hexdigest()
@@ -31,8 +32,8 @@ class Service(tornado.web.RequestHandler):
     access = {}
     grants = {}
     sids = [None]
+
     reader = maxminddb.open_database(cfg.geodb)
-    db = sqlite3.connect(cfg.db)
 
     @coroutine
     def post(self):
@@ -65,12 +66,14 @@ class Service(tornado.web.RequestHandler):
 
     def dump(self, *args):
         print(*args)
-        cur = self.db.cursor()
+        db = sqlite3.connect(os.path.abspath(cfg.db))
+        cur = db.cursor()
         cur.execute('''
         INSERT INTO stats VALUES(?,?,?,?);
         ''', args)
         cur.execute("PRAGMA wal_checkpoint(PASSIVE)")
-        self.db.commit()
+        db.commit()
+        db.close()
 
     def get_country(self, ip):
         result = self.reader.get(ip)
@@ -127,8 +130,9 @@ class Widget(tornado.web.RequestHandler):
 
     def get_data(self, extractors):
         data = {}
+        db = sqlite3.connect(cfg.db)
+        cur = db.cursor()
         for key in extractors:
-            cur = self.db.cursor()
             cur.execute(extractors[key])
             result = cur.fetchall()[0][0]
             result = result if result is not None else 'N/A'

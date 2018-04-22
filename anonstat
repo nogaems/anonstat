@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 # -*- mode: python-mode;
 # coding: utf-8
+
+import daemon
+
 import sys
+import argparse
 
 sys.path.append('./src/')
 from service import *
 
-if __name__ == "__main__":
+
+def run():
     app = tornado.web.Application(
         [
             (r'/', Index),
@@ -14,9 +19,33 @@ if __name__ == "__main__":
             (r'/anonstat.js', Script),
             (r'/widget.png', Widget)
         ],
-        template_path=os.path.join(os.path.dirname(__file__), "templates"),
+        template_path=os.path.join(
+            os.path.dirname(__file__),
+            "templates"),
         cookie_secret=cookie_secret
-
     )
     app.listen(cfg.port)
     tornado.ioloop.IOLoop.current().start()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config', action='store',
+                        help='Specify configuration file, \'./config.py\' by default')
+    parser.add_argument('-d', '--daemon', action='store_true',
+                        help='Run as a daemon')
+    parser.add_argument('-l', '--logfile', action='store',
+                        help='Specify a log file, defaults depend on mode, '
+                        'if it\'s a daemon-mode, then /dev/null is used, stdout/stderr otherwise')
+
+    args = parser.parse_args()
+
+    log = open(args.logfile, 'a') if args.logfile else None
+    if args.config:
+        cfg = imp.load_source('cfg', args.config)
+    if args.daemon:
+        with daemon.DaemonContext(working_directory=os.path.dirname(os.path.abspath(__file__)),
+                                  stdout=log, stderr=log):
+            run()
+    else:
+        run()
