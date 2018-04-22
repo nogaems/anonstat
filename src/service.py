@@ -12,6 +12,7 @@ import time
 import random
 import hashlib
 from io import BytesIO
+import imp
 
 import config as cfg
 from widget import Template
@@ -57,7 +58,7 @@ class Service(tornado.web.RequestHandler):
         self.access[self.request.remote_ip] = time.time()
         self.set_status(200)
         self.dump(self.request.body,
-                  self.request._start_time,
+                  int(self.request._start_time),
                   sid,
                   self.get_country(self.request.remote_ip)
                   )
@@ -97,6 +98,8 @@ class Script(tornado.web.RequestHandler):
 
 class Widget(tornado.web.RequestHandler):
     widget = {'timestamp': None, 'image': None}
+    template = None
+    db = sqlite3.connect(cfg.db)
 
     def __init__(self, *args, **kwargs):
         self.cache(self.render())
@@ -113,19 +116,24 @@ class Widget(tornado.web.RequestHandler):
         self.write(out)
 
     def render(self):
-        data = {
-            'uday': 1234,
-            'uweek': 1234,
-            'umonth': 1234,
-            'hday': 1234,
-            'hweek': 1234,
-            'hmonth': 1234
-        }
-        context = Template()
+        template = imp.load_source('template', cfg.widget_template)
+        context = Template(template.render,
+                           template.extractors)
+        data = self.get_data(template.extractors)
         out = BytesIO()
         img = context.render(data)
         img.save(out, 'PNG')
         return out.getvalue()
+
+    def get_data(self, extractors):
+        data = {}
+        for key in extractors:
+            cur = self.db.cursor()
+            cur.execute(extractors[key])
+            result = cur.fetchall()[0][0]
+            result = result if result is not None else 'N/A'
+            data[key] = result
+        return data
 
     def cache(self, img):
         self.widget['timestamp'] = time.time()

@@ -17,3 +17,5 @@ geodb = 'db/GeoLite2-Country.mmdb'
 ssl = False
 # Widget update time in seconds
 widget_update = 1
+# Widget template file
+widget_template = 'templates/default.py'

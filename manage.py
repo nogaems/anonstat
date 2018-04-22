@@ -34,7 +34,7 @@ def serve(code):
 def create_db(name='stats'):
     return '''
         CREATE TABLE IF NOT EXISTS {}
-        (url TEXT, time REAL, id TEXT, country TEXT);
+        (url TEXT, ts INT, id TEXT, country TEXT);
         '''.format(name)
 
 
@@ -50,6 +50,7 @@ def confirm():
     while answer and (not answer in 'yYnN'):
         answer = input('[Y]/n:')
     return True if not answer or answer in 'yY' else False
+
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                  description='Manage script')
