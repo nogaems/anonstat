@@ -72,17 +72,3 @@ class Template(DefaultTemplate):
         kwargs = kwargs if all(
             [arg in kwargs for arg in ['base', 'font', 'renderer']]) else {}
         super(Template, self).__init__(*args, **kwargs)
-
-
-# data = {
-#     'uday': 1234,
-#     'uweek': 1234,
-#     'umonth': 1234,
-#     'hday': 1234,
-#     'hweek': 1234,
-#     'hmonth': 1234
-# }
-
-# c = Context()
-# img = c.draw_small(data)
-# img.save('out.png')

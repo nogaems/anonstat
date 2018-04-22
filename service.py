@@ -130,19 +130,3 @@ class Widget(tornado.web.RequestHandler):
     def cache(self, img):
         self.widget['timestamp'] = time.time()
         self.widget['image'] = img
-
-
-if __name__ == "__main__":
-    app = tornado.web.Application(
-        [
-            (r'/', Index),
-            (r'/bump', Service),
-            (r'/anonstat.js', Script),
-            (r'/widget.png', Widget)
-        ],
-        template_path=os.path.join(os.path.dirname(__file__), "templates"),
-        cookie_secret=cookie_secret
-
-    )
-    app.listen(cfg.port)
-    tornado.ioloop.IOLoop.current().start()
