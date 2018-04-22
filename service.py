@@ -11,9 +11,10 @@ import os
 import time
 import random
 import hashlib
+from io import BytesIO
 
 import config as cfg
-
+from widget import Context
 random = random.SystemRandom()
 random.seed()
 cookie_secret = hashlib.sha256(str(random.random()).encode('utf8')).hexdigest()
@@ -95,10 +96,40 @@ class Script(tornado.web.RequestHandler):
 
 
 class Widget(tornado.web.RequestHandler):
+    widget = {'timestamp': None, 'image': None}
+
+    def __init__(self, *args, **kwargs):
+        self.cache(self.render())
+        super(Widget, self).__init__(*args, **kwargs)
 
     @coroutine
     def get(self):
-        pass
+        if time.time() - self.widget['timestamp'] > cfg.widget_update:
+            out = self.render()
+            self.cache(out)
+        else:
+            out = self.widget['image']
+        self.set_header('Content-Type', 'image/png')
+        self.write(out)
+
+    def render(self):
+        data = {
+            'uday': 1234,
+            'uweek': 1234,
+            'umonth': 1234,
+            'hday': 1234,
+            'hweek': 1234,
+            'hmonth': 1234
+        }
+        c = Context()
+        out = BytesIO()
+        img = c.draw_small(data)
+        img.save(out, 'PNG')
+        return out.getvalue()
+
+    def cache(self, img):
+        self.widget['timestamp'] = time.time()
+        self.widget['image'] = img
 
 
 if __name__ == "__main__":
@@ -107,7 +138,7 @@ if __name__ == "__main__":
             (r'/', Index),
             (r'/bump', Service),
             (r'/anonstat.js', Script),
-            (r'/gidget', Widget)
+            (r'/widget.png', Widget)
         ],
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
         cookie_secret=cookie_secret
