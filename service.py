@@ -14,7 +14,7 @@ import hashlib
 from io import BytesIO
 
 import config as cfg
-from widget import Context
+from widget import Template
 random = random.SystemRandom()
 random.seed()
 cookie_secret = hashlib.sha256(str(random.random()).encode('utf8')).hexdigest()
@@ -121,9 +121,9 @@ class Widget(tornado.web.RequestHandler):
             'hweek': 1234,
             'hmonth': 1234
         }
-        c = Context()
+        context = Template()
         out = BytesIO()
-        img = c.draw_small(data)
+        img = context.render(data)
         img.save(out, 'PNG')
         return out.getvalue()
 

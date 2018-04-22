@@ -5,33 +5,39 @@ import math
 from PIL import Image, ImageDraw, ImageFont
 
 
-class Context:
-    base = {}
-    font = {}
+class DefaultTemplate:
+    base = None
+    font = None
+    renderer = None
 
-    def __init__(self):
-        self.base['small'] = Image.open(
-            'templates/counter-small.png').convert('RGBA')
-        self.font['small'] = ImageFont.truetype(
-            'templates/terminus-bold.ttf', 18)
+    def __init__(self,
+                 base='templates/counter-small.png',
+                 font={'path': 'templates/terminus-bold.ttf', 'size': 18},
+                 renderer=None):
+        self.base = Image.open(base).convert('RGBA')
+        self.font = ImageFont.truetype(font['path'], font['size'])
+        self.renderer = self.draw_small if renderer is None else renderer
 
-    def draw_small(self, data,
-                   template='{uday} {uweek} {umonth}\n{hday} {hweek} {hmonth}',
-                   position=(22, 23),
-                   color=(243, 108, 00, 255),
-                   spacing=2):
-        text = Image.new('RGBA', self.base['small'].size, (255, 255, 255, 0))
+    def render(self, data):
+        return self.renderer(data)
+
+    def draw_small(self, data):
+        template_string = '{uday} {uweek} {umonth}\n{hday} {hweek} {hmonth}'
+        position = (22, 23)
+        color = (243, 108, 00, 255)
+        spacing = 2
+        text = Image.new('RGBA', self.base.size, (255, 255, 255, 0))
         draw = ImageDraw.Draw(text)
         data = self.prepare_data(data)
-        message = template.format(**data)
+        message = template_string.format(**data)
         draw.multiline_text(
             position,
             message,
-            font=self.font['small'],
+            font=self.font,
             fill=color,
             spacing=spacing
         )
-        out = Image.alpha_composite(self.base['small'], text)
+        out = Image.alpha_composite(self.base, text)
         return out
 
     def prepare_data(self, data):
@@ -58,6 +64,15 @@ class Context:
             return t[:3] + letter
         else:
             return ' ' + t.split('.')[0] + letter
+
+
+class Template(DefaultTemplate):
+
+    def __init__(self, *args, **kwargs):
+        kwargs = kwargs if all(
+            [arg in kwargs for arg in ['base', 'font', 'renderer']]) else {}
+        super(Template, self).__init__(*args, **kwargs)
+
 
 # data = {
 #     'uday': 1234,
