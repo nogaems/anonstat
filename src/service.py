@@ -13,6 +13,7 @@ import random
 import hashlib
 from io import BytesIO
 import imp
+from urllib.parse import urlparse
 
 import config as cfg
 from widget import Template
@@ -38,7 +39,7 @@ class Service(tornado.web.RequestHandler):
     @coroutine
     def post(self):
         if not self.request.remote_ip in self.access.keys():
-            if not self.request.host_name in cfg.domains:
+            if urlparse(self.request.body).hostname.decode('utf8') not in cfg.domains:
                 self.set_status(403, 'Unaccepted domain')
                 return
             sid = self.grant_sid()
