@@ -1,0 +1,62 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Dashboard</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+      
+        <!-- Place favicon.ico in the root directory -->
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="http://localhost:8888/anonstat.js"></script>
+
+    </head>
+    <body>
+        <!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
+        <div id="stats">
+          <div>
+            <p>Visitor statistics</p>
+            <input class="search" placeholder="Search" />
+          </div>
+          <table>
+            <tr>
+              <td>
+                <button class="sort" data-sort="url">
+                  Sort by url
+                </button>
+              </td>
+              <td>
+                <button class="sort" data-sort="unique">
+                  Sort by amount of unique visitors
+                </button>
+              </td>
+              <td>
+                <button class="sort" data-sort="hits">
+                  Sort by amount of hits
+                </button>
+              </td>              
+            </tr>
+            <tbody class="list">              
+              {% for row in data%}            
+              <tr>
+                <td class="url"><a href="{{ row[0] }}">{{ row[0] }}</a></td>
+                <td class="unique">{{ row[1] }}</td>
+                <td class="hits">{{ row[2] }}</td>              
+              </tr>
+              {% end %}
+            </tbody>
+          </table>
+           <ul class="pagination"></ul>
+        </div>        
+        <script src="js/vendor/modernizr-3.5.0.min.js"></script>
+        <script src="js/vendor/list.min.js"></script>
+        <script src="js/plugins.js"></script>
+        <script src="js/main.js"></script>
+    </body>
+</html>

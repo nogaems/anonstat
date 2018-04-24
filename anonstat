@@ -15,7 +15,11 @@ def run():
             (r'/', Index),
             (r'/bump', Service),
             (r'/anonstat.js', Script),
-            (r'/widget.png', Widget)
+            (r'/widget.png', Widget),
+            (r"/css/(.*)", tornado.web.StaticFileHandler,
+             {"path": "./dashboard/css/"}),
+            (r"/js/(.*)", tornado.web.StaticFileHandler,
+             {"path": "./dashboard/js/"}),
         ],
         cookie_secret=cookie_secret
     )

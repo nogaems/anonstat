@@ -26,7 +26,22 @@ cookie_secret = hashlib.sha256(str(random.random()).encode('utf8')).hexdigest()
 class Index(tornado.web.RequestHandler):
 
     def get(self):
-        self.render('test.html')
+        self.get_data()
+        self.render('../dashboard/index.html', data=self.get_data())
+
+    def get_data(self):
+        query = '''
+        SELECT DISTINCT url,
+        (SELECT COUNT(DISTINCT id) FROM stats st WHERE st.url = stats.url) as unique_ ,
+        (SELECT COUNT(id) FROM stats st WHERE st.url = stats.url) as hits
+        FROM stats
+        WHERE datetime(ts, 'unixepoch', 'localtime')
+        BETWEEN datetime('now', '-1 year', 'localtime') and datetime('now', 'localtime')
+        '''
+        db = sqlite3.connect(cfg.db)
+        cur = db.cursor()
+        cur.execute(query)
+        return cur.fetchall()
 
 
 class Service(tornado.web.RequestHandler):
