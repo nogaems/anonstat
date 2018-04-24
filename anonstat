@@ -36,12 +36,19 @@ if __name__ == "__main__":
     parser.add_argument('-l', '--logfile', action='store',
                         help='Specify a log file, defaults depend on mode,'
                         'if it\'s a daemon-mode, then /dev/null is used, stdout/stderr otherwise')
+    parser.add_argument('-e', '--debug', action='store_true',
+                        help='Set logging level to DEBUG')
 
     args = parser.parse_args()
 
     log = open(args.logfile, 'a') if args.logfile else None
     if args.config:
         cfg = imp.load_source('cfg', args.config)
+    logger = tornado.log.logging.getLogger()
+    if args.debug:
+        logger.setLevel(tornado.log.logging.DEBUG)
+    else:
+        logger.setLevel(tornado.log.logging.FATAL)
     if args.daemon:
         with daemon.DaemonContext(working_directory=os.path.dirname(os.path.abspath(__file__)),
                                   stdout=log, stderr=log):

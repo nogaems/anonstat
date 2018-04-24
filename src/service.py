@@ -4,6 +4,7 @@
 import tornado.ioloop
 import tornado.web
 from tornado.gen import coroutine
+import tornado.log
 import maxminddb
 
 import sqlite3
