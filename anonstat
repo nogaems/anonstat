@@ -4,11 +4,9 @@
 
 import daemon
 
-import sys
 import argparse
 
-sys.path.append('./src/')
-from service import *
+from src.service import *
 
 
 def run():
@@ -19,9 +17,6 @@ def run():
             (r'/anonstat.js', Script),
             (r'/widget.png', Widget)
         ],
-        template_path=os.path.join(
-            os.path.dirname(__file__),
-            "templates"),
         cookie_secret=cookie_secret
     )
     app.listen(cfg.port)
@@ -35,7 +30,7 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--daemon', action='store_true',
                         help='Run as a daemon')
     parser.add_argument('-l', '--logfile', action='store',
-                        help='Specify a log file, defaults depend on mode, '
+                        help='Specify a log file, defaults depend on mode,'
                         'if it\'s a daemon-mode, then /dev/null is used, stdout/stderr otherwise')
 
     args = parser.parse_args()

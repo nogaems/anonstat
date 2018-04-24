@@ -16,7 +16,7 @@ import imp
 from urllib.parse import urlparse
 
 import config as cfg
-from widget import Template
+from . widget import Template
 
 random = random.SystemRandom()
 random.seed()
@@ -96,8 +96,8 @@ class Script(tornado.web.RequestHandler):
     @coroutine
     def get(self):
         self.set_header('Content-Type', 'text/javascript')
-        self.render(
-            'counter.js', host=cfg.host, port=cfg.port, ssl='s' if cfg.ssl else '')
+        self.render('../templates/counter.js', host=cfg.host,
+                    port=cfg.port, ssl='s' if cfg.ssl else '')
 
 
 class Widget(tornado.web.RequestHandler):
