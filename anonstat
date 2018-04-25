@@ -28,16 +28,19 @@ def run():
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-c', '--config', action='store',
                         help='Specify configuration file, \'./config.py\' by default')
     parser.add_argument('-d', '--daemon', action='store_true',
                         help='Run as a daemon')
     parser.add_argument('-l', '--logfile', action='store',
-                        help='Specify a log file, defaults depend on mode,'
-                        'if it\'s a daemon-mode, then /dev/null is used, stdout/stderr otherwise')
+                        help='Specify a log file, defaults depend on mode, if it\'s a\n'
+                        'daemon-mode, then /dev/null is used, stdout/stderr otherwise')
     parser.add_argument('-e', '--debug', action='store_true',
-                        help='Set logging level to DEBUG')
+                        help='Set logging level to DEBUG\n'
+                        'Attention! Avoid using this option in production due to the writing\n'
+                        'sensitive logs about users')
 
     args = parser.parse_args()
 

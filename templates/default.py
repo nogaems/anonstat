@@ -1,4 +1,9 @@
 # Default template file
+# You have to define here at least two requered entities:
+# "extractors" dictionary with data fields and associated SQL-queries for extracting those values
+# "render" function that takes "data" dictionary and uses it to render the widget.
+# "data" has to have the same keys as "extractors" has.
+# This function is supposed to return PIL image.
 from PIL import Image, ImageDraw, ImageFont
 
 extractors = {
