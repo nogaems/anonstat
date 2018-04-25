@@ -82,7 +82,6 @@ class Service(tornado.web.RequestHandler):
                   )
 
     def dump(self, *args):
-        print(*args)
         db = sqlite3.connect(os.path.abspath(cfg.db))
         cur = db.cursor()
         cur.execute('''
