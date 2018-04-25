@@ -1,11 +1,11 @@
 # The hostname and the port number of statistics server, this will be
-# injected in JS plugin
+# injected in JS plugin and used to run the server
 host = 'localhost'
 port = '8888'
 # The list of accepted domains, that will be taken into account during
 # statistics collection
 domains = ['localhost']
-# Timeout between two hits from the same IP (in seconds), more often
+# Timeout between two hits from the same IP (in seconds), more frequent
 # attempts to get the same page will not affect the statistics
 access_timeout = 10
 # Timeout of granting a cookie for the same IP
@@ -16,6 +16,6 @@ geodb = 'db/GeoLite2-Country.mmdb'
 # Enable https
 ssl = False
 # Widget update time in seconds
-widget_update = 1
+widget_update = 10
 # Widget template file
 widget_template = 'templates/default.py'
