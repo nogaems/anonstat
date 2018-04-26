@@ -74,6 +74,23 @@ Now you need to create a table for statistics in the db-file and download `GeoLi
 
 Execute `./manage -h` for getting more options.
 
+## Client side
+
+To make a page send statistics, just insert the script into it like that:
+
+```
+...
+<head>
+...
+<script src="http://host:port/anonstat.js"></script>
+...
+</head>
+...
+
+```
+
+where `host` and `port` are values from the config.
+
 ## Running
 
 ```
@@ -99,14 +116,14 @@ optional arguments:
     * doesn't send any data to some third-party services
     * doesn't write any logs about users
     * stores user's IPs only in the memory that makes it easy to clean just by restarting the server.
-    ...Even if the government will require the logs from the VPS ISP they will get nothing.
+    
+    Even if the government will require the logs from the VPS ISP they will get nothing.
 * Dashboard with:
     * filtering
     * fuzzy searching
     * sorting
 * Embeddable custom widgets
+* Open data
 
-# Open data
-
-After running the service you can see the dashboard at http://host:port. It contains statistics about visitors and hit count per URL for the past year.
-This project licensed is under AGPL-3.0. By default everyone has an access to the dashboard, otherwise it means that service runner has changed the service code. If he/she is not going to violate the AGPL license, he/she will definitely publish all the changes he/she made. If he/she didn't, I strongly recommend don't use his/her service/site at all.
+   After running the service you can see the dashboard at http://host:port. It contains statistics about visitors and hit count per URL for the past year.  
+   This project licensed is under AGPL-3.0. By default everyone has an access to the dashboard, otherwise it means that service runner has changed the service code. If he/she is not going to violate the AGPL license, he/she will definitely publish all the changes he/she made. If he/she didn't, I strongly recommend don't use his/her service/site at all.
